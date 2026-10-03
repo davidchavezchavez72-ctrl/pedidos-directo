@@ -1,13 +1,19 @@
 const path = require('path');
 const fs = require('fs');
-const { DatabaseSync } = require('node:sqlite');
+const { createClient } = require('@libsql/client');
 
-const dataDir = path.join(__dirname, 'data');
-if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+let url = process.env.TURSO_DATABASE_URL;
+let authToken = process.env.TURSO_AUTH_TOKEN;
 
-const db = new DatabaseSync(path.join(dataDir, 'orders.db'));
+if (!url) {
+  const dataDir = path.join(__dirname, 'data');
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+  url = `file:${path.join(dataDir, 'orders.db')}`;
+}
 
-db.exec(`
+const db = createClient({ url, authToken });
+
+const ready = db.execute(`
   CREATE TABLE IF NOT EXISTS orders (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
@@ -19,17 +25,23 @@ db.exec(`
   );
 `);
 
-function insertOrder({ name, phone, email, details, notes }) {
-  const stmt = db.prepare(
-    `INSERT INTO orders (name, phone, email, details, notes) VALUES (?, ?, ?, ?, ?)`
-  );
-  const info = stmt.run(name, phone, email || null, details, notes || null);
-  const getStmt = db.prepare('SELECT * FROM orders WHERE id = ?');
-  return getStmt.get(Number(info.lastInsertRowid));
+async function insertOrder({ name, phone, email, details, notes }) {
+  await ready;
+  const info = await db.execute({
+    sql: `INSERT INTO orders (name, phone, email, details, notes) VALUES (?, ?, ?, ?, ?)`,
+    args: [name, phone, email || null, details, notes || null],
+  });
+  const result = await db.execute({
+    sql: 'SELECT * FROM orders WHERE id = ?',
+    args: [info.lastInsertRowid],
+  });
+  return result.rows[0];
 }
 
-function getAllOrders() {
-  return db.prepare('SELECT * FROM orders ORDER BY id DESC').all();
+async function getAllOrders() {
+  await ready;
+  const result = await db.execute('SELECT * FROM orders ORDER BY id DESC');
+  return result.rows;
 }
 
 module.exports = { db, insertOrder, getAllOrders };
