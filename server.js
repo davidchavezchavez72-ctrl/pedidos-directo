@@ -113,7 +113,7 @@ app.post(
     }
 
     const { name, phone, email, details, notes } = req.body;
-    const order = insertOrder({ name, phone, email, details, notes });
+    const order = await insertOrder({ name, phone, email, details, notes });
 
     sendOrderNotification(order).catch((err) => {
       console.error('[mailer] Error enviando la notificacion del pedido:', err.message);
@@ -160,8 +160,8 @@ app.post('/admin/logout', requireAuth, verifyCsrfToken, (req, res) => {
 
 // ======================= ADMIN: PEDIDOS =======================
 
-app.get('/admin/pedidos', requireAuth, (req, res) => {
-  const orders = getAllOrders();
+app.get('/admin/pedidos', requireAuth, async (req, res) => {
+  const orders = await getAllOrders();
   res.render('orders', { orders });
 });
 
