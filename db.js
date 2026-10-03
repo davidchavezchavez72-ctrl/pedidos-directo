@@ -1,47 +1,64 @@
-const path = require('path');
-const fs = require('fs');
-const { createClient } = require('@libsql/client');
+const { Pool } = require('pg');
 
-let url = process.env.TURSO_DATABASE_URL;
-let authToken = process.env.TURSO_AUTH_TOKEN;
+const connectionString = process.env.DATABASE_URL;
 
-if (!url) {
-  const dataDir = path.join(__dirname, 'data');
-  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
-  url = `file:${path.join(dataDir, 'orders.db')}`;
-}
+let insertOrder;
+let getAllOrders;
 
-const db = createClient({ url, authToken });
-
-const ready = db.execute(`
-  CREATE TABLE IF NOT EXISTS orders (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    phone TEXT NOT NULL,
-    email TEXT,
-    details TEXT NOT NULL,
-    notes TEXT,
-    created_at TEXT NOT NULL DEFAULT (datetime('now','localtime'))
-  );
-`);
-
-async function insertOrder({ name, phone, email, details, notes }) {
-  await ready;
-  const info = await db.execute({
-    sql: `INSERT INTO orders (name, phone, email, details, notes) VALUES (?, ?, ?, ?, ?)`,
-    args: [name, phone, email || null, details, notes || null],
+if (connectionString) {
+  const pool = new Pool({
+    connectionString,
+    ssl: { rejectUnauthorized: false },
   });
-  const result = await db.execute({
-    sql: 'SELECT * FROM orders WHERE id = ?',
-    args: [info.lastInsertRowid],
-  });
-  return result.rows[0];
+
+  const ready = pool.query(`
+    CREATE TABLE IF NOT EXISTS orders (
+      id SERIAL PRIMARY KEY,
+      name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      email TEXT,
+      details TEXT NOT NULL,
+      notes TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
+  insertOrder = async ({ name, phone, email, details, notes }) => {
+    await ready;
+    const result = await pool.query(
+      `INSERT INTO orders (name, phone, email, details, notes) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+      [name, phone, email || null, details, notes || null]
+    );
+    return result.rows[0];
+  };
+
+  getAllOrders = async () => {
+    await ready;
+    const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
+    return result.rows;
+  };
+} else {
+  // Sin DATABASE_URL: almacen en memoria solo para desarrollo local.
+  // Los datos se pierden al reiniciar. En produccion SIEMPRE define DATABASE_URL.
+  console.warn('[db] DATABASE_URL no configurado: usando almacen en memoria (solo para desarrollo).');
+  const memoryOrders = [];
+  let nextId = 1;
+
+  insertOrder = async ({ name, phone, email, details, notes }) => {
+    const order = {
+      id: nextId++,
+      name,
+      phone,
+      email: email || null,
+      details,
+      notes: notes || null,
+      created_at: new Date(),
+    };
+    memoryOrders.unshift(order);
+    return order;
+  };
+
+  getAllOrders = async () => memoryOrders;
 }
 
-async function getAllOrders() {
-  await ready;
-  const result = await db.execute('SELECT * FROM orders ORDER BY id DESC');
-  return result.rows;
-}
-
-module.exports = { db, insertOrder, getAllOrders };
+module.exports = { insertOrder, getAllOrders };
