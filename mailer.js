@@ -1,49 +1,42 @@
-const nodemailer = require('nodemailer');
-
-let transporter = null;
-
-function getTransporter() {
-  if (transporter) return transporter;
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return null;
-
-  transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    requireTLS: true,
-    connectionTimeout: 15000,
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-        },
-  });
-  return transporter;
-}
+const RESEND_API_URL = 'https://api.resend.com/emails';
 
 async function sendOrderNotification(order) {
-  const t = getTransporter();
-  if (!t) {
-    console.warn('[mailer] EMAIL_USER/EMAIL_PASS no configurados: no se envio notificacion por correo.');
+  const apiKey = process.env.RESEND_API_KEY;
+  const to = process.env.EMAIL_TO;
+
+  if (!apiKey || !to) {
+    console.warn('[mailer] RESEND_API_KEY/EMAIL_TO no configurados: no se envio notificacion por correo.');
     return;
   }
 
-  const to = process.env.EMAIL_TO || process.env.EMAIL_USER;
   const fecha = new Date(order.created_at).toLocaleString('es-ES');
 
-  await t.sendMail({
-    from: `"Pedidos Web" <${process.env.EMAIL_USER}>`,
-    to,
-    subject: `Nuevo pedido #${order.id} de ${order.name}`,
-    text:
-      `Nuevo pedido recibido\n\n` +
-      `Nombre: ${order.name}\n` +
-      `Telefono: ${order.phone}\n` +
-      `Email: ${order.email || '(no indicado)'}\n` +
-      `Fecha: ${fecha}\n\n` +
-      `Detalle del pedido:\n${order.details}\n\n` +
-      (order.notes ? `Notas adicionales:\n${order.notes}\n\n` : '') +
-      `Puedes ver todos los pedidos en el panel de administrador.`,
+  const res = await fetch(RESEND_API_URL, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: 'Pedidos Directo <onboarding@resend.dev>',
+      to,
+      subject: `Nuevo pedido #${order.id} de ${order.name}`,
+      text:
+        `Nuevo pedido recibido\n\n` +
+        `Nombre: ${order.name}\n` +
+        `Telefono: ${order.phone}\n` +
+        `Email: ${order.email || '(no indicado)'}\n` +
+        `Fecha: ${fecha}\n\n` +
+        `Detalle del pedido:\n${order.details}\n\n` +
+        (order.notes ? `Notas adicionales:\n${order.notes}\n\n` : '') +
+        `Puedes ver todos los pedidos en el panel de administrador.`,
+    }),
   });
+
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Resend API error ${res.status}: ${body}`);
+  }
 }
 
 module.exports = { sendOrderNotification };
