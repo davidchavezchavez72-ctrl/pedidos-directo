@@ -24,7 +24,7 @@
           <article class="order-card">
             <header>
               <strong>#<%= o.id %> — <%= o.name %></strong>
-              <span class="order-date"><%= o.created_at %></span>
+              <span class="order-date"><%= new Date(o.created_at).toLocaleString('es-ES') %></span>
             </header>
             <p><strong>Telefono:</strong> <%= o.phone %></p>
             <% if (o.email) { %><p><strong>Correo:</strong> <%= o.email %></p><% } %>
