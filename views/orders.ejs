@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedidos Directo — Panel de pedidos</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <main class="container container-wide">
+    <div class="orders-header">
+      <h1>Pedidos recibidos (<%= orders.length %>)</h1>
+      <form action="/admin/logout" method="POST">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+        <button type="submit" class="btn-secondary">Cerrar sesion</button>
+      </form>
+    </div>
+
+    <% if (!orders.length) { %>
+      <p>Todavia no hay pedidos.</p>
+    <% } else { %>
+      <div class="orders-list">
+        <% orders.forEach(function(o) { %>
+          <article class="order-card">
+            <header>
+              <strong>#<%= o.id %> — <%= o.name %></strong>
+              <span class="order-date"><%= o.created_at %></span>
+            </header>
+            <p><strong>Telefono:</strong> <%= o.phone %></p>
+            <% if (o.email) { %><p><strong>Correo:</strong> <%= o.email %></p><% } %>
+            <p><strong>Pedido:</strong></p>
+            <p class="order-details"><%= o.details %></p>
+            <% if (o.notes) { %>
+              <p><strong>Notas:</strong></p>
+              <p class="order-details"><%= o.notes %></p>
+            <% } %>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </main>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedidos Directo</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <main class="container">
+    <p class="brand">Pedidos Directo</p>
+    <h1>Haz tu pedido</h1>
+    <p class="subtitle">Completa el formulario y te contactaremos pronto.</p>
+
+    <% if (success) { %>
+      <div class="alert alert-success">
+        ¡Gracias! Tu pedido fue recibido correctamente.
+      </div>
+    <% } %>
+
+    <% if (errors && errors.length) { %>
+      <div class="alert alert-error">
+        <ul>
+          <% errors.forEach(function(e) { %>
+            <li><%= e.msg %></li>
+          <% }); %>
+        </ul>
+      </div>
+    <% } %>
+
+    <form action="/pedido" method="POST" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+
+      <label for="name">Nombre completo *</label>
+      <input type="text" id="name" name="name" maxlength="100" required value="<%= values.name || '' %>" />
+
+      <label for="phone">Telefono de contacto *</label>
+      <input type="tel" id="phone" name="phone" maxlength="30" required value="<%= values.phone || '' %>" />
+
+      <label for="email">Correo electronico (opcional)</label>
+      <input type="email" id="email" name="email" maxlength="100" value="<%= values.email || '' %>" />
+
+      <label for="details">Detalle de tu pedido *</label>
+      <textarea id="details" name="details" rows="5" maxlength="2000" required><%= values.details || '' %></textarea>
+
+      <label for="notes">Notas adicionales (opcional)</label>
+      <textarea id="notes" name="notes" rows="3" maxlength="500"><%= values.notes || '' %></textarea>
+
+      <button type="submit">Enviar pedido</button>
+    </form>
+
+    <p class="footer-link"><a href="/admin/login">Acceso administrador</a></p>
+  </main>
+</body>
+</html>
