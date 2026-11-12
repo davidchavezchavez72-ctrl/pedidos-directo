@@ -1,52 +1,63 @@
-const { Pool } = require('pg');
-
-const connectionString = process.env.DATABASE_URL;
+const { initializeApp, cert } = require('firebase-admin/app');
+const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
 let insertOrder;
 let getAllOrders;
 
-if (connectionString) {
-  const pool = new Pool({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
+const projectId = process.env.FIREBASE_PROJECT_ID;
+const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
+const privateKey = process.env.FIREBASE_PRIVATE_KEY
+  ? process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n')
+  : undefined;
+
+if (projectId && clientEmail && privateKey) {
+  initializeApp({
+    credential: cert({ projectId, clientEmail, privateKey }),
   });
 
-  const ready = pool.query(`
-    CREATE TABLE IF NOT EXISTS orders (
-      id SERIAL PRIMARY KEY,
-      name TEXT NOT NULL,
-      phone TEXT NOT NULL,
-      email TEXT,
-      details TEXT NOT NULL,
-      notes TEXT,
-      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-    );
-  `);
+  const db = getFirestore();
+  const ordersCollection = db.collection('orders');
 
   insertOrder = async ({ name, phone, email, details, notes }) => {
-    await ready;
-    const result = await pool.query(
-      `INSERT INTO orders (name, phone, email, details, notes) VALUES ($1, $2, $3, $4, $5) RETURNING *`,
-      [name, phone, email || null, details, notes || null]
-    );
-    return result.rows[0];
+    const docRef = await ordersCollection.add({
+      name,
+      phone,
+      email: email || null,
+      details,
+      notes: notes || null,
+      created_at: FieldValue.serverTimestamp(),
+    });
+    const snap = await docRef.get();
+    const data = snap.data();
+    return {
+      id: snap.id,
+      ...data,
+      created_at: data.created_at ? data.created_at.toDate() : new Date(),
+    };
   };
 
   getAllOrders = async () => {
-    await ready;
-    const result = await pool.query('SELECT * FROM orders ORDER BY id DESC');
-    return result.rows;
+    const snapshot = await ordersCollection.orderBy('created_at', 'desc').get();
+    return snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+        created_at: data.created_at ? data.created_at.toDate() : new Date(),
+      };
+    });
   };
 } else {
-  // Sin DATABASE_URL: almacen en memoria solo para desarrollo local.
-  // Los datos se pierden al reiniciar. En produccion SIEMPRE define DATABASE_URL.
-  console.warn('[db] DATABASE_URL no configurado: usando almacen en memoria (solo para desarrollo).');
+  // Sin credenciales de Firebase: almacen en memoria solo para desarrollo.
+  // Los datos se pierden al reiniciar. En produccion SIEMPRE define
+  // FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL y FIREBASE_PRIVATE_KEY.
+  console.warn('[db] Credenciales de Firebase no configuradas: usando almacen en memoria (solo para desarrollo).');
   const memoryOrders = [];
   let nextId = 1;
 
   insertOrder = async ({ name, phone, email, details, notes }) => {
     const order = {
-      id: nextId++,
+      id: String(nextId++),
       name,
       phone,
       email: email || null,
