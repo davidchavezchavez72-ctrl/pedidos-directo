@@ -10,4 +10,11 @@ module.exports = [
     description: 'Esfera decorativa con diseño de malla entrelazada, con un árbol de Navidad y regalos en su interior. Impresa en 3D en filamento blanco, incluye argolla para colgar.',
     price: 80,
   },
+  {
+    id: 'esfera-espiral-amarilla',
+    image: 'esfera-espiral-amarilla.webp',
+    name: 'Esfera navideña - Espiral amarilla',
+    description: 'Esfera decorativa con diseño de relieve en espiral. Impresa en 3D en filamento amarillo.',
+    price: 80,
+  },
 ];
