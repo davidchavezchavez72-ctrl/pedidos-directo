@@ -3,6 +3,7 @@ const { getFirestore, FieldValue } = require('firebase-admin/firestore');
 
 let insertOrder;
 let getAllOrders;
+let updateOrderStatus;
 
 const projectId = process.env.FIREBASE_PROJECT_ID;
 const clientEmail = process.env.FIREBASE_CLIENT_EMAIL;
@@ -18,13 +19,13 @@ if (projectId && clientEmail && privateKey) {
   const db = getFirestore();
   const ordersCollection = db.collection('orders');
 
-  insertOrder = async ({ name, phone, email, details, notes }) => {
+  insertOrder = async ({ name, phone, email, items }) => {
     const docRef = await ordersCollection.add({
       name,
       phone,
-      email: email || null,
-      details,
-      notes: notes || null,
+      email,
+      items,
+      status: 'pendiente',
       created_at: FieldValue.serverTimestamp(),
     });
     const snap = await docRef.get();
@@ -47,6 +48,18 @@ if (projectId && clientEmail && privateKey) {
       };
     });
   };
+
+  updateOrderStatus = async (id, status) => {
+    const ref = ordersCollection.doc(id);
+    await ref.update({ status, shipped_at: status === 'enviado' ? FieldValue.serverTimestamp() : null });
+    const snap = await ref.get();
+    const data = snap.data();
+    return {
+      id: snap.id,
+      ...data,
+      created_at: data.created_at ? data.created_at.toDate() : new Date(),
+    };
+  };
 } else {
   // Sin credenciales de Firebase: almacen en memoria solo para desarrollo.
   // Los datos se pierden al reiniciar. En produccion SIEMPRE define
@@ -55,14 +68,14 @@ if (projectId && clientEmail && privateKey) {
   const memoryOrders = [];
   let nextId = 1;
 
-  insertOrder = async ({ name, phone, email, details, notes }) => {
+  insertOrder = async ({ name, phone, email, items }) => {
     const order = {
       id: String(nextId++),
       name,
       phone,
-      email: email || null,
-      details,
-      notes: notes || null,
+      email,
+      items,
+      status: 'pendiente',
       created_at: new Date(),
     };
     memoryOrders.unshift(order);
@@ -70,6 +83,15 @@ if (projectId && clientEmail && privateKey) {
   };
 
   getAllOrders = async () => memoryOrders;
+
+  updateOrderStatus = async (id, status) => {
+    const order = memoryOrders.find((o) => o.id === id);
+    if (order) {
+      order.status = status;
+      order.shipped_at = status === 'enviado' ? new Date() : null;
+    }
+    return order;
+  };
 }
 
-module.exports = { insertOrder, getAllOrders };
+module.exports = { insertOrder, getAllOrders, updateOrderStatus };
