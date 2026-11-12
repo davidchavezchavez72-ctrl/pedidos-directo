@@ -1,8 +1,13 @@
 // Catalogo de productos. Cada producto necesita una imagen en /public/images/.
 // Para agregar un producto nuevo, agrega una imagen a public/images/ y un
-// objeto aqui con un id unico, el nombre del archivo de imagen y el nombre
-// que vera el cliente. "price" es opcional (se puede omitir o dejar null).
+// objeto aqui con un id unico, el nombre del archivo de imagen, el nombre
+// que vera el cliente y una descripcion corta. "price" es opcional.
 module.exports = [
-  // Ejemplo:
-  // { id: 'camisa-azul', image: 'camisa-azul.jpg', name: 'Camisa azul', price: 250 },
+  {
+    id: 'esfera-arbol-navidad',
+    image: 'esfera-arbol-navidad.webp',
+    name: 'Esfera navideña - Árbol y regalos',
+    description: 'Esfera decorativa con diseño de malla entrelazada, con un árbol de Navidad y regalos en su interior. Impresa en 3D en filamento blanco, incluye argolla para colgar.',
+    price: 80,
+  },
 ];

@@ -39,6 +39,7 @@
             <div class="product-card">
               <img src="/images/<%= p.image %>" alt="<%= p.name %>" class="product-image" />
               <p class="product-name"><%= p.name %></p>
+              <% if (p.description) { %><p class="product-description"><%= p.description %></p><% } %>
               <% if (p.price) { %><p class="product-price">$<%= p.price %></p><% } %>
               <label for="qty_<%= p.id %>">Cantidad</label>
               <input

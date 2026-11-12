@@ -166,6 +166,7 @@ button:hover { background: var(--primary-dark); }
 }
 
 .product-name { font-weight: 600; margin: 8px 0 2px; font-size: 0.95rem; }
+.product-description { color: var(--muted); font-size: 0.8rem; margin: 0 0 6px; line-height: 1.3; }
 .product-price { color: var(--muted); margin: 0 0 4px; font-size: 0.9rem; }
 
 .product-card label {
