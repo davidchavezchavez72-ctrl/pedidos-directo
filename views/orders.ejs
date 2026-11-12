@@ -27,12 +27,28 @@
               <span class="order-date"><%= new Date(o.created_at).toLocaleString('es-ES') %></span>
             </header>
             <p><strong>Telefono:</strong> <%= o.phone %></p>
-            <% if (o.email) { %><p><strong>Correo:</strong> <%= o.email %></p><% } %>
-            <p><strong>Pedido:</strong></p>
-            <p class="order-details"><%= o.details %></p>
-            <% if (o.notes) { %>
-              <p><strong>Notas:</strong></p>
-              <p class="order-details"><%= o.notes %></p>
+            <p><strong>Correo:</strong> <%= o.email %></p>
+            <p><strong>Estado:</strong>
+              <span class="status-badge status-<%= o.status %>">
+                <%= o.status === 'enviado' ? 'Enviado' : 'Pendiente' %>
+              </span>
+            </p>
+
+            <p><strong>Productos:</strong></p>
+            <div class="order-items">
+              <% (o.items || []).forEach(function(item) { %>
+                <div class="order-item">
+                  <img src="/images/<%= item.image %>" alt="<%= item.name %>" class="order-item-image" />
+                  <span><%= item.quantity %>x <%= item.name %></span>
+                </div>
+              <% }); %>
+            </div>
+
+            <% if (o.status !== 'enviado') { %>
+              <form action="/admin/pedidos/<%= o.id %>/enviar" method="POST" class="ship-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <button type="submit">Marcar como enviado</button>
+              </form>
             <% } %>
           </article>
         <% }); %>
