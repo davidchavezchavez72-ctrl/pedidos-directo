@@ -8,10 +8,11 @@ const rateLimit = require('express-rate-limit');
 const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 
-const { insertOrder, getAllOrders } = require('./db');
+const products = require('./products');
+const { insertOrder, getAllOrders, updateOrderStatus } = require('./db');
 const { requireAuth } = require('./middleware/auth');
 const { ensureCsrfToken, verifyCsrfToken } = require('./middleware/csrf');
-const { sendOrderNotification } = require('./mailer');
+const { sendOrderNotification, sendShippedNotification } = require('./mailer');
 
 const app = express();
 const isProd = process.env.NODE_ENV === 'production';
@@ -88,7 +89,7 @@ const loginLimiter = rateLimit({
 // ======================= RUTAS PUBLICAS =======================
 
 app.get('/', (req, res) => {
-  res.render('index', { errors: [], values: {}, success: req.query.success === '1' });
+  res.render('index', { products, errors: [], values: {}, success: req.query.success === '1' });
 });
 
 app.post(
@@ -98,22 +99,36 @@ app.post(
   [
     body('name').trim().isLength({ min: 2, max: 100 }).withMessage('El nombre debe tener entre 2 y 100 caracteres.'),
     body('phone').trim().isLength({ min: 6, max: 30 }).withMessage('Indica un telefono valido.'),
-    body('email').optional({ checkFalsy: true }).trim().isEmail().withMessage('El correo no es valido.').normalizeEmail(),
-    body('details').trim().isLength({ min: 5, max: 2000 }).withMessage('Describe tu pedido (5 a 2000 caracteres).'),
-    body('notes').optional({ checkFalsy: true }).trim().isLength({ max: 500 }).withMessage('Las notas no pueden superar 500 caracteres.'),
+    body('email').trim().isEmail().withMessage('Indica un correo electronico valido.').normalizeEmail(),
   ],
   async (req, res) => {
     const errors = validationResult(req);
+
+    const items = products
+      .map((product) => {
+        const qtyRaw = req.body[`qty_${product.id}`];
+        const quantity = parseInt(qtyRaw, 10);
+        return Number.isInteger(quantity) && quantity > 0
+          ? { productId: product.id, name: product.name, image: product.image, quantity: Math.min(quantity, 50) }
+          : null;
+      })
+      .filter(Boolean);
+
+    if (items.length === 0) {
+      errors.errors.push({ msg: 'Selecciona al menos un producto y su cantidad.' });
+    }
+
     if (!errors.isEmpty()) {
       return res.status(400).render('index', {
+        products,
         errors: errors.array(),
         values: req.body,
         success: false,
       });
     }
 
-    const { name, phone, email, details, notes } = req.body;
-    const order = await insertOrder({ name, phone, email, details, notes });
+    const { name, phone, email } = req.body;
+    const order = await insertOrder({ name, phone, email, items });
 
     sendOrderNotification(order).catch((err) => {
       console.error('[mailer] Error enviando la notificacion del pedido:', err.message);
@@ -163,6 +178,18 @@ app.post('/admin/logout', requireAuth, verifyCsrfToken, (req, res) => {
 app.get('/admin/pedidos', requireAuth, async (req, res) => {
   const orders = await getAllOrders();
   res.render('orders', { orders });
+});
+
+app.post('/admin/pedidos/:id/enviar', requireAuth, verifyCsrfToken, async (req, res) => {
+  const order = await updateOrderStatus(req.params.id, 'enviado');
+
+  if (order) {
+    sendShippedNotification(order).catch((err) => {
+      console.error('[mailer] Error enviando la notificacion de envio:', err.message);
+    });
+  }
+
+  res.redirect('/admin/pedidos');
 });
 
 // ======================= MANEJO DE ERRORES =======================
