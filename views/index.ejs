@@ -7,10 +7,10 @@
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
-  <main class="container">
+  <main class="container container-wide">
     <p class="brand">Pedidos Directo</p>
     <h1>Haz tu pedido</h1>
-    <p class="subtitle">Completa el formulario y te contactaremos pronto.</p>
+    <p class="subtitle">Selecciona los productos que quieres y la cantidad de cada uno.</p>
 
     <% if (success) { %>
       <div class="alert alert-success">
@@ -31,22 +31,42 @@
     <form action="/pedido" method="POST" novalidate>
       <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
 
-      <label for="name">Nombre completo *</label>
-      <input type="text" id="name" name="name" maxlength="100" required value="<%= values.name || '' %>" />
+      <% if (!products.length) { %>
+        <p class="empty-catalog">Todavía no hay productos disponibles. Vuelve pronto.</p>
+      <% } else { %>
+        <div class="product-grid">
+          <% products.forEach(function(p) { %>
+            <div class="product-card">
+              <img src="/images/<%= p.image %>" alt="<%= p.name %>" class="product-image" />
+              <p class="product-name"><%= p.name %></p>
+              <% if (p.price) { %><p class="product-price">$<%= p.price %></p><% } %>
+              <label for="qty_<%= p.id %>">Cantidad</label>
+              <input
+                type="number"
+                id="qty_<%= p.id %>"
+                name="qty_<%= p.id %>"
+                min="0"
+                max="50"
+                value="<%= values['qty_' + p.id] || 0 %>"
+              />
+            </div>
+          <% }); %>
+        </div>
 
-      <label for="phone">Telefono de contacto *</label>
-      <input type="tel" id="phone" name="phone" maxlength="30" required value="<%= values.phone || '' %>" />
+        <h2 class="section-title">Tus datos</h2>
 
-      <label for="email">Correo electronico (opcional)</label>
-      <input type="email" id="email" name="email" maxlength="100" value="<%= values.email || '' %>" />
+        <label for="name">Nombre completo *</label>
+        <input type="text" id="name" name="name" maxlength="100" required value="<%= values.name || '' %>" />
 
-      <label for="details">Detalle de tu pedido *</label>
-      <textarea id="details" name="details" rows="5" maxlength="2000" required><%= values.details || '' %></textarea>
+        <label for="phone">Telefono de contacto *</label>
+        <input type="tel" id="phone" name="phone" maxlength="30" required value="<%= values.phone || '' %>" />
 
-      <label for="notes">Notas adicionales (opcional)</label>
-      <textarea id="notes" name="notes" rows="3" maxlength="500"><%= values.notes || '' %></textarea>
+        <label for="email">Correo electronico *</label>
+        <input type="email" id="email" name="email" maxlength="100" required value="<%= values.email || '' %>" />
+        <p class="field-hint">Te avisaremos a este correo cuando tu pedido sea enviado.</p>
 
-      <button type="submit">Enviar pedido</button>
+        <button type="submit">Enviar pedido</button>
+      <% } %>
     </form>
 
     <p class="footer-link"><a href="/admin/login">Acceso administrador</a></p>
