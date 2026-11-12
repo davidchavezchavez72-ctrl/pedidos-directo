@@ -137,6 +137,95 @@ button:hover { background: var(--primary-dark); }
 
 .order-details { white-space: pre-wrap; background: #fafbfc; padding: 10px; border-radius: 6px; }
 
+.section-title { margin-top: 32px; font-size: 1.2rem; }
+
+.empty-catalog { color: var(--muted); }
+
+.field-hint { margin: 4px 0 0; color: var(--muted); font-size: 0.85rem; }
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.product-card {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  text-align: center;
+}
+
+.product-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: 8px;
+  background: #f0f1f3;
+}
+
+.product-name { font-weight: 600; margin: 8px 0 2px; font-size: 0.95rem; }
+.product-price { color: var(--muted); margin: 0 0 4px; font-size: 0.9rem; }
+
+.product-card label {
+  margin: 6px 0 4px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--muted);
+}
+
+.product-card input[type="number"] {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.order-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fafbfc;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px 6px 6px;
+  font-size: 0.9rem;
+}
+
+.order-item-image {
+  width: 36px;
+  height: 36px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.status-pendiente { background: #fff4e5; color: #b36b00; }
+.status-enviado { background: var(--success-bg); color: var(--success); }
+
+.ship-form button {
+  width: auto;
+  margin-top: 8px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+}
+
 @media (max-width: 500px) {
   .container { margin: 0; border-radius: 0; min-height: 100vh; }
 }
