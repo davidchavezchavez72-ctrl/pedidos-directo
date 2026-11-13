@@ -11,7 +11,7 @@ const { body, validationResult } = require('express-validator');
 const products = require('./products');
 const { insertOrder, getAllOrders, updateOrderStatus } = require('./db');
 const { requireAuth } = require('./middleware/auth');
-const { ensureCsrfToken, verifyCsrfToken } = require('./middleware/csrf');
+const { ensureCsrfToken, verifyCsrfToken, checkCsrfToken } = require('./middleware/csrf');
 const { sendOrderNotification, sendShippedNotification } = require('./mailer');
 
 const app = express();
@@ -95,13 +95,28 @@ app.get('/', (req, res) => {
 app.post(
   '/pedido',
   orderLimiter,
-  verifyCsrfToken,
+  checkCsrfToken,
   [
     body('name').trim().isLength({ min: 2, max: 100 }).withMessage('El nombre debe tener entre 2 y 100 caracteres.'),
     body('phone').trim().isLength({ min: 6, max: 30 }).withMessage('Indica un telefono valido.'),
     body('email').trim().isEmail().withMessage('Indica un correo electronico valido.').normalizeEmail(),
   ],
   async (req, res) => {
+    // Si el token de seguridad expiro, no guardamos nada: le regresamos el
+    // formulario con todo lo que ya habia llenado para que solo vuelva a enviar.
+    if (!req.csrfValid) {
+      return res.render('index', {
+        products,
+        errors: [
+          {
+            msg: 'La pagina se actualizo mientras hacias tu pedido. Tus datos siguen aqui: revisalos y presiona "Enviar pedido" otra vez.',
+          },
+        ],
+        values: req.body,
+        success: false,
+      });
+    }
+
     const errors = validationResult(req);
 
     const readQty = (field) => {
