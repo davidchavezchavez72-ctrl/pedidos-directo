@@ -230,3 +230,18 @@ button:hover { background: var(--primary-dark); }
 @media (max-width: 500px) {
   .container { margin: 0; border-radius: 0; min-height: 100vh; }
 }
+
+/* --- Colores por producto --- */
+.colors-title { margin: 8px 0 4px; font-size: 0.8rem; font-weight: 600; color: var(--muted); }
+.color-list { display: grid; gap: 6px; }
+.color-row { display: grid; grid-template-columns: 26px 1fr 64px; align-items: center; gap: 6px; text-align: left; }
+.product-card .color-row label.color-name { margin: 0; font-size: 0.85rem; font-weight: 500; color: var(--text); }
+.product-card .color-row input[type="number"] { padding: 6px; }
+.color-swatch {
+  width: 24px; height: 24px; margin: 0; padding: 0;
+  border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px var(--border);
+  cursor: pointer;
+}
+.color-swatch:hover, .color-swatch.active { box-shadow: 0 0 0 2px var(--text); }
+.color-dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: middle; border: 1px solid rgba(0,0,0,0.15); }
+.order-item-image { width: 64px; height: 64px; }
