@@ -247,3 +247,16 @@ button:hover { background: var(--primary-dark); }
 .order-item-image { width: 64px; height: 64px; }
 .color-note { display: block; font-size: 0.7rem; font-weight: 400; color: var(--muted); line-height: 1.2; }
 .color-note-inline { color: var(--muted); font-size: 0.85rem; }
+
+/* --- Direccion --- */
+select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #fff;
+}
+.field-row { display: grid; grid-template-columns: 1fr 140px; gap: 12px; }
+@media (max-width: 500px) { .field-row { grid-template-columns: 1fr; gap: 0; } }
