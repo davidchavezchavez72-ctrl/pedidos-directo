@@ -270,3 +270,19 @@ select {
 .order-total-tip { color: var(--success); font-size: 0.8rem !important; }
 .order-pricing { background: #fafbfc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; }
 .order-pricing p { margin: 2px 0; font-size: 0.9rem; }
+
+/* --- Barra fija con el total --- */
+.total-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
+  display: flex; justify-content: space-between; align-items: center; gap: 12px;
+  padding: 14px 20px; background: #1f2430; color: #fff; font-size: 1rem;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
+}
+.total-bar[hidden] { display: none; }
+.total-bar strong { font-size: 1.25rem; }
+body.has-total-bar { padding-bottom: 64px; }
+.submit-total { margin: 24px 0 0; font-size: 1.15rem; text-align: center; }
+.submit-total[hidden] { display: none; }
+.success-total { margin-top: 10px; padding-top: 10px; border-top: 1px solid #b7e4c7; }
+.success-total p { margin: 2px 0; }
+.success-total-sum { font-size: 1.1rem; margin-top: 6px !important; }
