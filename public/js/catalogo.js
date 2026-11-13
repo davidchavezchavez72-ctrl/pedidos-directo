@@ -29,7 +29,7 @@ document.querySelectorAll('[data-target][data-image]').forEach(function (el) {
     cards.forEach(function (card) {
       var price = Number(card.dataset.price) || 0, dozen = Number(card.dataset.dozen) || 0, qty = 0;
       card.querySelectorAll('input[type=number]').forEach(function (i) {
-        var n = parseInt(i.value, 10); if (n > 0) qty += Math.min(n, 50);
+        var n = parseInt(i.value, 10); if (n > 0) qty += Math.min(n, Number(i.max) || 50);
       });
       if (!qty || !price) return;
       var dz = dozen ? Math.floor(qty / 12) : 0, rest = qty - dz * 12, sub = dz * dozen + rest * price;
