@@ -10,6 +10,7 @@
   <main class="container container-wide">
     <div class="orders-header">
       <h1>Pedidos recibidos (<%= orders.length %>)</h1>
+      <a class="btn-link" href="/admin/personalizadas">Esferas personalizadas</a>
       <form action="/admin/logout" method="POST">
         <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
         <button type="submit" class="btn-secondary">Cerrar sesion</button>
@@ -45,7 +46,7 @@
             <div class="order-items">
               <% (o.items || []).forEach(function(item) { %>
                 <div class="order-item">
-                  <img src="/images/<%= item.image %>" alt="<%= item.name %>" class="order-item-image" />
+                  <img src="<%= item.imageUrl ? item.imageUrl : '/images/' + item.image %>" alt="<%= item.name %>" class="order-item-image" />
                   <span>
                     <strong><%= item.quantity %>x</strong> <%= item.name %>
                     <% if (item.color) { %>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pedidos Directo — Esferas personalizadas</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <main class="container container-wide">
+    <div class="orders-header">
+      <h1>Esferas personalizadas (<%= requests.length %>)</h1>
+      <a class="btn-link" href="/admin/pedidos">Ver pedidos</a>
+    </div>
+
+    <% if (ok) { %><div class="alert alert-success"><%= ok %></div><% } %>
+    <% if (error) { %><div class="alert alert-error"><%= error %></div><% } %>
+
+    <% if (!requests.length) { %>
+      <p>Todavía no hay solicitudes de esferas personalizadas.</p>
+    <% } else { %>
+      <div class="orders-list">
+        <% requests.forEach(function(r) {
+             var expired = r.status === 'diseno_enviado' && r.expires_at && now > r.expires_at;
+             var link = base + '/personalizada/ver/' + r.token;
+             var digits = String(r.phone || '').replace(/\D/g, '');
+             if (digits.length === 10) digits = '52' + digits;
+             var waText = 'Hola ' + r.name + ', tu esfera personalizada ya está lista. Mírala y haz tu pedido aquí: ' + link;
+             var wa = 'https://wa.me/' + digits + '?text=' + encodeURIComponent(waText);
+        %>
+          <article class="order-card">
+            <header>
+              <strong><%= r.brand || 'Sin nombre de marca' %> — <%= r.name %></strong>
+              <span class="order-date"><%= fmtDate(r.created_at) %></span>
+            </header>
+
+            <p><strong>Estado:</strong>
+              <% if (r.status === 'esperando_diseno') { %><span class="status-badge status-pendiente">Falta subir el diseño</span><% } %>
+              <% if (r.status === 'diseno_enviado' && !expired) { %><span class="status-badge status-diseno">Diseño enviado · vence <%= fmtDate(r.expires_at) %></span><% } %>
+              <% if (expired) { %><span class="status-badge status-vencido">Venció el plazo (<%= fmtDate(r.expires_at) %>)</span><% } %>
+              <% if (r.status === 'pedido') { %><span class="status-badge status-enviado">Ya hizo su pedido</span><% } %>
+            </p>
+            <p><strong>Teléfono:</strong> <%= r.phone %> · <strong>Correo:</strong> <%= r.email %></p>
+            <% if (r.notes) { %><p><strong>Indicaciones:</strong> <%= r.notes %></p><% } %>
+
+            <div class="custom-images">
+              <figure>
+                <a href="/admin/personalizadas/<%= r.id %>/logo" target="_blank"><img src="/admin/personalizadas/<%= r.id %>/logo" alt="Logo del cliente" /></a>
+                <figcaption>Logo del cliente</figcaption>
+              </figure>
+              <% if (r.status !== 'esperando_diseno') { %>
+                <figure>
+                  <img src="/admin/personalizadas/<%= r.id %>/mockup" alt="Diseño de la esfera" />
+                  <figcaption>Tu diseño</figcaption>
+                </figure>
+              <% } %>
+            </div>
+
+            <% if (r.status === 'diseno_enviado' && !expired) { %>
+              <p class="field-hint">Link para el cliente:</p>
+              <input type="text" class="copy-link" readonly value="<%= link %>" />
+              <a class="btn-whatsapp" href="<%= wa %>" target="_blank" rel="noopener">Mandarle el link por WhatsApp</a>
+            <% } %>
+
+            <% if (r.status !== 'pedido') { %>
+              <form action="/admin/personalizadas/<%= r.id %>/diseno" method="POST" class="mockup-form">
+                <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
+                <input type="hidden" name="mockup" id="mockup-<%= r.id %>" />
+                <label for="mockup-file-<%= r.id %>"><%= r.status === 'esperando_diseno' ? 'Sube la imagen de cómo se ve su esfera' : 'Subir otro diseño (le da 2 días hábiles nuevos)' %></label>
+                <input type="file" id="mockup-file-<%= r.id %>" accept="image/*" class="file-input"
+                  data-target="mockup-<%= r.id %>" data-preview="mockup-preview-<%= r.id %>" data-msg="mockup-msg-<%= r.id %>" />
+                <p class="field-hint" id="mockup-msg-<%= r.id %>"></p>
+                <img id="mockup-preview-<%= r.id %>" class="upload-preview" alt="Vista previa" hidden />
+                <button type="submit">Enviar diseño al cliente</button>
+              </form>
+            <% } %>
+          </article>
+        <% }); %>
+      </div>
+    <% } %>
+  </main>
+  <script src="/js/subir-imagen.js"></script>
+</body>
+</html>
