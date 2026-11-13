@@ -18,3 +18,41 @@ document.querySelectorAll('[data-target][data-image]').forEach(function (el) {
   el.addEventListener(el.tagName === 'BUTTON' ? 'click' : 'focus', show);
   if (el.tagName === 'INPUT') el.addEventListener('input', show);
 });
+
+// Total en vivo con precio por pieza y por docena (12 piezas del mismo producto).
+(function () {
+  var box = document.getElementById('order-total');
+  if (!box) return;
+  var cards = document.querySelectorAll('.product-card[data-product]');
+  function update() {
+    var html = '', total = 0;
+    cards.forEach(function (card) {
+      var price = Number(card.dataset.price) || 0, dozen = Number(card.dataset.dozen) || 0, qty = 0;
+      card.querySelectorAll('input[type=number]').forEach(function (i) {
+        var n = parseInt(i.value, 10); if (n > 0) qty += Math.min(n, 50);
+      });
+      if (!qty || !price) return;
+      var dz = dozen ? Math.floor(qty / 12) : 0, rest = qty - dz * 12, sub = dz * dozen + rest * price;
+      var name = card.querySelector('.product-name').textContent;
+      var parts = [];
+      if (dz) parts.push(dz + (dz > 1 ? ' docenas' : ' docena'));
+      if (rest) parts.push(rest + (rest > 1 ? ' piezas' : ' pieza'));
+      var line = document.createElement('p');
+      line.textContent = qty + 'x ' + name + ' (' + parts.join(' + ') + '): $' + sub;
+      html += line.outerHTML;
+      if (dozen && rest && rest >= 8) {
+        var tip = document.createElement('p'); tip.className = 'order-total-tip';
+        tip.textContent = 'Con ' + (12 - rest) + ' mas completas otra docena a $' + dozen;
+        html += tip.outerHTML;
+      }
+      total += sub;
+    });
+    document.getElementById('order-total-lines').innerHTML = html;
+    document.getElementById('order-total-sum').textContent = '$' + total;
+    box.hidden = total === 0;
+  }
+  document.querySelectorAll('.product-card input[type=number]').forEach(function (i) {
+    i.addEventListener('input', update);
+  });
+  update();
+})();
