@@ -28,6 +28,13 @@
             </header>
             <p><strong>Telefono:</strong> <%= o.phone %></p>
             <p><strong>Correo:</strong> <%= o.email %></p>
+            <% if (o.address) { %>
+              <p><strong>Direccion:</strong>
+                <%= o.address.street %>, Col. <%= o.address.colonia %>,
+                <%= o.address.city %>, <%= o.address.state %>, C.P. <%= o.address.zip %>
+                <% if (o.address.references) { %><br /><span class="order-date">Referencias: <%= o.address.references %></span><% } %>
+              </p>
+            <% } %>
             <p><strong>Estado:</strong>
               <span class="status-badge status-<%= o.status %>">
                 <%= o.status === 'enviado' ? 'Enviado' : 'Pendiente' %>
