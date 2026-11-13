@@ -1,10 +1,39 @@
 const RESEND_API_URL = 'https://api.resend.com/emails';
 
-function formatItems(items) {
-  return items.map((item) => `- ${item.quantity}x ${item.name}`).join('\n');
+// Direccion publica de la pagina, para que las imagenes se vean en el correo.
+const PUBLIC_URL = (process.env.PUBLIC_URL || 'https://pedidos-directo.onrender.com').replace(/\/$/, '');
+
+function escapeHtml(value) {
+  return String(value == null ? '' : value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
 }
 
-async function sendEmail({ to, subject, text }) {
+function formatItems(items) {
+  return items
+    .map((item) => `- ${item.quantity}x ${item.name}${item.color ? ` (color: ${item.color})` : ''}`)
+    .join('\n');
+}
+
+// Lista de productos en HTML, con la foto de cada producto en el color pedido.
+function formatItemsHtml(items) {
+  return items
+    .map((item) => {
+      const img = `${PUBLIC_URL}/images/${encodeURIComponent(item.image)}`;
+      const color = item.color
+        ? `<br><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${escapeHtml(item.colorHex || '#ccc')};vertical-align:middle"></span> Color: <b>${escapeHtml(item.color)}</b>`
+        : '';
+      return (
+        `<tr><td style="padding:6px 12px 6px 0"><img src="${img}" width="110" height="110" alt="${escapeHtml(item.name)}" style="border-radius:8px;object-fit:cover"></td>` +
+        `<td style="padding:6px 0;font-size:15px"><b>${item.quantity}x</b> ${escapeHtml(item.name)}${color}</td></tr>`
+      );
+    })
+    .join('');
+}
+
+async function sendEmail({ to, subject, text, html }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('[mailer] RESEND_API_KEY no configurado: no se envio el correo.');
@@ -22,6 +51,7 @@ async function sendEmail({ to, subject, text }) {
       to,
       subject,
       text,
+      ...(html ? { html } : {}),
     }),
   });
 
@@ -52,6 +82,15 @@ async function sendOrderNotification(order) {
       `Fecha: ${fecha}\n\n` +
       `Productos seleccionados:\n${formatItems(order.items)}\n\n` +
       `Puedes ver todos los pedidos en el panel de administrador.`,
+    html:
+      `<h2 style="margin:0 0 12px">Nuevo pedido recibido</h2>` +
+      `<p><b>Nombre:</b> ${escapeHtml(order.name)}<br>` +
+      `<b>Telefono:</b> ${escapeHtml(order.phone)}<br>` +
+      `<b>Email:</b> ${escapeHtml(order.email)}<br>` +
+      `<b>Fecha:</b> ${escapeHtml(fecha)}</p>` +
+      `<h3 style="margin:16px 0 4px">Productos</h3>` +
+      `<table cellpadding="0" cellspacing="0">${formatItemsHtml(order.items)}</table>` +
+      `<p><a href="${PUBLIC_URL}/admin/pedidos">Ver todos los pedidos en el panel</a></p>`,
   });
 }
 

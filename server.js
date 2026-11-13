@@ -104,15 +104,42 @@ app.post(
   async (req, res) => {
     const errors = validationResult(req);
 
-    const items = products
-      .map((product) => {
-        const qtyRaw = req.body[`qty_${product.id}`];
-        const quantity = parseInt(qtyRaw, 10);
-        return Number.isInteger(quantity) && quantity > 0
-          ? { productId: product.id, name: product.name, image: product.image, quantity: Math.min(quantity, 50) }
-          : null;
-      })
-      .filter(Boolean);
+    const readQty = (field) => {
+      const quantity = parseInt(req.body[field], 10);
+      return Number.isInteger(quantity) && quantity > 0 ? Math.min(quantity, 50) : 0;
+    };
+
+    const items = [];
+    products.forEach((product) => {
+      if (Array.isArray(product.colors) && product.colors.length) {
+        // Producto con colores: una linea por cada color que pidio el cliente
+        product.colors.forEach((color) => {
+          const quantity = readQty(`qty_${product.id}__${color.id}`);
+          if (quantity) {
+            items.push({
+              productId: product.id,
+              name: product.name,
+              color: color.name,
+              colorHex: color.hex,
+              image: color.image,
+              price: product.price || null,
+              quantity,
+            });
+          }
+        });
+      } else {
+        const quantity = readQty(`qty_${product.id}`);
+        if (quantity) {
+          items.push({
+            productId: product.id,
+            name: product.name,
+            image: product.image,
+            price: product.price || null,
+            quantity,
+          });
+        }
+      }
+    });
 
     if (items.length === 0) {
       errors.errors.push({ msg: 'Selecciona al menos un producto y su cantidad.' });
