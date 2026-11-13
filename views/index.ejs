@@ -9,10 +9,14 @@
 <body>
   <main class="container container-wide">
     <header class="hero">
+      <div class="lights" aria-hidden="true"><% for (var b = 0; b < 16; b++) { %><span></span><% } %></div>
       <p class="brand">Pedidos Directo</p>
       <h1>Esferas navideñas hechas a mano</h1>
       <p class="hero-text">Impresas en 3D con mucho cariño. Escoge tus favoritas y te las enviamos a tu casa.</p>
-      <div class="hero-ornaments" aria-hidden="true"><span></span><span></span><span></span></div>
+      <p class="countdown" id="countdown" hidden></p>
+      <svg class="hero-trees" viewBox="0 0 600 60" preserveAspectRatio="none" aria-hidden="true">
+        <path d="M0 60 L20 28 L30 34 L45 10 L60 34 L70 26 L90 60 Z M80 60 L105 20 L118 30 L135 4 L152 30 L165 22 L190 60 Z M410 60 L430 24 L442 32 L460 6 L478 32 L490 24 L512 60 Z M500 60 L522 30 L534 36 L550 12 L566 36 L578 28 L600 60 Z" />
+      </svg>
     </header>
 
     <h2 class="section-title section-title-first">Haz tu pedido</h2>
@@ -144,6 +148,7 @@
       <% } %>
     </form>
 
+    <p class="footer-xmas">Hechas con cariño para tu Navidad · ¡Felices fiestas!</p>
     <p class="footer-link"><a href="/admin/login">Acceso administrador</a></p>
   </main>
 
@@ -152,6 +157,6 @@
     <span>Total: <strong id="total-bar-sum">$0</strong></span>
   </div>
   <script src="/js/catalogo.js"></script>
-  <script src="/js/mascota.js"></script>
+  <script src="/js/navidad.js"></script>
 </body>
 </html>
