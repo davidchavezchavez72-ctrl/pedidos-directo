@@ -19,4 +19,16 @@ function verifyCsrfToken(req, res, next) {
   next();
 }
 
-module.exports = { ensureCsrfToken, verifyCsrfToken };
+// Version "suave" para el formulario de pedidos: no bloquea con una pagina de
+// error, solo marca req.csrfValid. Asi, si el token expiro (por ejemplo porque
+// la pagina se actualizo o el servidor se reinicio mientras el cliente llenaba
+// su pedido), se le vuelve a mostrar el formulario con sus datos ya llenos y un
+// token nuevo, en lugar de perder todo. El pedido NO se guarda en ese caso.
+function checkCsrfToken(req, res, next) {
+  const sent = req.body && req.body._csrf;
+  const expected = req.session && req.session.csrfToken;
+  req.csrfValid = Boolean(sent && expected && sent === expected);
+  next();
+}
+
+module.exports = { ensureCsrfToken, verifyCsrfToken, checkCsrfToken };
