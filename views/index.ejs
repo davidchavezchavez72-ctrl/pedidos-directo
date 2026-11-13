@@ -15,6 +15,14 @@
     <% if (success) { %>
       <div class="alert alert-success">
         ¡Gracias! Tu pedido fue recibido correctamente.
+        <% if (lastOrder && lastOrder.total) { %>
+          <div class="success-total">
+            <% (lastOrder.pricing || []).forEach(function(l) { %>
+              <p><%= l.qty %>x <%= l.name %>: $<%= l.subtotal.toLocaleString('es-MX') %></p>
+            <% }); %>
+            <p class="success-total-sum">Total de tu compra: <strong>$<%= lastOrder.total.toLocaleString('es-MX') %></strong></p>
+          </div>
+        <% } %>
       </div>
     <% } %>
 
@@ -119,12 +127,18 @@
         <label for="references">Referencias (opcional)</label>
         <textarea id="references" name="references" maxlength="300" rows="2" placeholder="Ej. Casa azul, entre calle X y calle Y"><%= values.references || '' %></textarea>
 
+        <p class="submit-total" id="submit-total" hidden>Total de tu compra: <strong id="submit-total-sum">$0</strong></p>
         <button type="submit">Enviar pedido</button>
       <% } %>
     </form>
 
     <p class="footer-link"><a href="/admin/login">Acceso administrador</a></p>
   </main>
+
+  <div class="total-bar" id="total-bar" hidden>
+    <span><span id="total-bar-count">0</span> esferas</span>
+    <span>Total: <strong id="total-bar-sum">$0</strong></span>
+  </div>
   <script src="/js/catalogo.js"></script>
 </body>
 </html>
