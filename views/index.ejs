@@ -36,11 +36,12 @@
       <% } else { %>
         <div class="product-grid">
           <% products.forEach(function(p) { %>
-            <div class="product-card">
+            <div class="product-card" data-product="<%= p.id %>" data-price="<%= p.price || 0 %>" data-dozen="<%= p.dozenPrice || 0 %>">
               <img src="/images/<%= p.image %>" alt="<%= p.name %>" class="product-image" id="img_<%= p.id %>" />
               <p class="product-name"><%= p.name %></p>
               <% if (p.description) { %><p class="product-description"><%= p.description %></p><% } %>
-              <% if (p.price) { %><p class="product-price">$<%= p.price %></p><% } %>
+              <% if (p.price) { %><p class="product-price">$<%= p.price %> c/u</p><% } %>
+              <% if (p.dozenPrice) { %><p class="product-dozen">Docena (12): <strong>$<%= p.dozenPrice %></strong><% if (p.colors && p.colors.length) { %><br /><span>puedes combinar colores</span><% } %></p><% } %>
               <% if (p.colors && p.colors.length) { %>
                 <p class="colors-title">Colores</p>
                 <div class="color-list">
@@ -69,6 +70,11 @@
               <% } %>
             </div>
           <% }); %>
+        </div>
+
+        <div class="order-total" id="order-total" hidden>
+          <div id="order-total-lines"></div>
+          <p class="order-total-sum">Total: <strong id="order-total-sum">$0</strong></p>
         </div>
 
         <h2 class="section-title">Tus datos</h2>

@@ -56,6 +56,17 @@
               <% }); %>
             </div>
 
+            <% if (o.total) { %>
+              <div class="order-pricing">
+                <% (o.pricing || []).forEach(function(l) { %>
+                  <p><%= l.qty %>x <%= l.name %>:
+                    <% if (l.dozens) { %><%= l.dozens %> docena<%= l.dozens > 1 ? 's' : '' %> ($<%= l.dozenPrice %>)<% } %><% if (l.dozens && l.rest) { %> + <% } %><% if (l.rest) { %><%= l.rest %> pieza<%= l.rest > 1 ? "s" : "" %> ($<%= l.price %> c/u)<% } %>
+                    = <strong>$<%= l.subtotal %></strong></p>
+                <% }); %>
+                <p class="order-total-sum">Total: <strong>$<%= o.total %></strong></p>
+              </div>
+            <% } %>
+
             <% if (o.status !== 'enviado') { %>
               <form action="/admin/pedidos/<%= o.id %>/enviar" method="POST" class="ship-form">
                 <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
