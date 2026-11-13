@@ -37,19 +37,36 @@
         <div class="product-grid">
           <% products.forEach(function(p) { %>
             <div class="product-card">
-              <img src="/images/<%= p.image %>" alt="<%= p.name %>" class="product-image" />
+              <img src="/images/<%= p.image %>" alt="<%= p.name %>" class="product-image" id="img_<%= p.id %>" />
               <p class="product-name"><%= p.name %></p>
               <% if (p.description) { %><p class="product-description"><%= p.description %></p><% } %>
               <% if (p.price) { %><p class="product-price">$<%= p.price %></p><% } %>
-              <label for="qty_<%= p.id %>">Cantidad</label>
-              <input
-                type="number"
-                id="qty_<%= p.id %>"
-                name="qty_<%= p.id %>"
-                min="0"
-                max="50"
-                value="<%= values['qty_' + p.id] || 0 %>"
-              />
+              <% if (p.colors && p.colors.length) { %>
+                <p class="colors-title">Colores</p>
+                <div class="color-list">
+                  <% p.colors.forEach(function(c) { var field = 'qty_' + p.id + '__' + c.id; %>
+                    <div class="color-row">
+                      <button type="button" class="color-swatch" data-color="<%= c.hex %>"
+                        data-target="img_<%= p.id %>" data-image="/images/<%= c.image %>"
+                        aria-label="Ver color <%= c.name %>" title="<%= c.name %>"></button>
+                      <label for="<%= field %>" class="color-name"><%= c.name %></label>
+                      <input type="number" id="<%= field %>" name="<%= field %>" min="0" max="50"
+                        value="<%= values[field] || 0 %>"
+                        data-target="img_<%= p.id %>" data-image="/images/<%= c.image %>" />
+                    </div>
+                  <% }); %>
+                </div>
+              <% } else { %>
+                <label for="qty_<%= p.id %>">Cantidad</label>
+                <input
+                  type="number"
+                  id="qty_<%= p.id %>"
+                  name="qty_<%= p.id %>"
+                  min="0"
+                  max="50"
+                  value="<%= values['qty_' + p.id] || 0 %>"
+                />
+              <% } %>
             </div>
           <% }); %>
         </div>
@@ -72,5 +89,6 @@
 
     <p class="footer-link"><a href="/admin/login">Acceso administrador</a></p>
   </main>
+  <script src="/js/catalogo.js"></script>
 </body>
 </html>

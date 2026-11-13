@@ -39,7 +39,12 @@
               <% (o.items || []).forEach(function(item) { %>
                 <div class="order-item">
                   <img src="/images/<%= item.image %>" alt="<%= item.name %>" class="order-item-image" />
-                  <span><%= item.quantity %>x <%= item.name %></span>
+                  <span>
+                    <strong><%= item.quantity %>x</strong> <%= item.name %>
+                    <% if (item.color) { %>
+                      <br /><span class="color-dot" data-color="<%= item.colorHex || '#cccccc' %>"></span> Color: <strong><%= item.color %></strong>
+                    <% } %>
+                  </span>
                 </div>
               <% }); %>
             </div>
@@ -55,5 +60,6 @@
       </div>
     <% } %>
   </main>
+  <script src="/js/catalogo.js"></script>
 </body>
 </html>
