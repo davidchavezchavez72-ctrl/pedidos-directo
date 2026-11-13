@@ -25,7 +25,7 @@ document.querySelectorAll('[data-target][data-image]').forEach(function (el) {
   if (!box) return;
   var cards = document.querySelectorAll('.product-card[data-product]');
   function update() {
-    var html = '', total = 0;
+    var html = '', total = 0, count = 0;
     cards.forEach(function (card) {
       var price = Number(card.dataset.price) || 0, dozen = Number(card.dataset.dozen) || 0, qty = 0;
       card.querySelectorAll('input[type=number]').forEach(function (i) {
@@ -46,10 +46,21 @@ document.querySelectorAll('[data-target][data-image]').forEach(function (el) {
         html += tip.outerHTML;
       }
       total += sub;
+      count += qty;
     });
+    var money = '$' + total.toLocaleString('es-MX');
     document.getElementById('order-total-lines').innerHTML = html;
-    document.getElementById('order-total-sum').textContent = '$' + total;
+    document.getElementById('order-total-sum').textContent = money;
     box.hidden = total === 0;
+    var bar = document.getElementById('total-bar');
+    if (bar) {
+      document.getElementById('total-bar-sum').textContent = money;
+      document.getElementById('total-bar-count').textContent = count;
+      bar.hidden = total === 0;
+      document.body.classList.toggle('has-total-bar', total > 0);
+    }
+    var st = document.getElementById('submit-total');
+    if (st) { document.getElementById('submit-total-sum').textContent = money; st.hidden = total === 0; }
   }
   document.querySelectorAll('.product-card input[type=number]').forEach(function (i) {
     i.addEventListener('input', update);
