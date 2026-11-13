@@ -494,3 +494,71 @@ input:focus, textarea:focus, select:focus { outline: 2px solid var(--gold); outl
   .mascota-burbuja { max-width: 150px; font-size: 0.78rem; }
   .mascota-cerrar { opacity: 1; width: 20px; height: 20px; line-height: 18px; }
 }
+
+/* --- Mas espiritu navideno --- */
+.snow { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; }
+.container { position: relative; z-index: 1; }
+.total-bar { z-index: 50; }
+
+.hero { position: relative; overflow: hidden; padding-top: 44px; padding-bottom: 62px; }
+.hero-trees { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 56px; fill: #0b2219; opacity: 0.9; }
+
+/* Series de luces */
+.lights {
+  position: absolute; top: 0; left: 0; right: 0; height: 30px;
+  display: flex; justify-content: space-around; align-items: flex-start; padding: 0 10px;
+}
+.lights::before {
+  content: ''; position: absolute; left: 0; right: 0; top: -14px; height: 26px;
+  border-bottom: 2px solid rgba(20, 30, 25, 0.9); border-radius: 0 0 50% 50% / 0 0 100% 100%;
+}
+.lights span {
+  position: relative; margin-top: 8px; width: 9px; height: 15px; border-radius: 50% 50% 45% 45%;
+  animation: brillar 2.4s ease-in-out infinite;
+}
+.lights span::before {
+  content: ''; position: absolute; top: -4px; left: 2px; width: 5px; height: 5px; border-radius: 1px; background: #2a332e;
+}
+.lights span:nth-child(4n+1) { background: #ff4d4d; color: #ff4d4d; animation-delay: 0s; }
+.lights span:nth-child(4n+2) { background: #ffd34d; color: #ffd34d; animation-delay: 0.6s; }
+.lights span:nth-child(4n+3) { background: #4dff88; color: #4dff88; animation-delay: 1.2s; }
+.lights span:nth-child(4n+4) { background: #5ab4ff; color: #5ab4ff; animation-delay: 1.8s; }
+.lights span:nth-child(odd) { margin-top: 12px; }
+@keyframes brillar {
+  0%, 100% { opacity: 1; box-shadow: 0 2px 12px 3px currentColor; }
+  50% { opacity: 0.35; box-shadow: 0 0 2px 0 currentColor; }
+}
+
+.countdown {
+  display: inline-block; margin: 16px 0 0; padding: 6px 16px; border-radius: 999px;
+  background: rgba(201, 162, 77, 0.18); border: 1px solid rgba(201, 162, 77, 0.6);
+  color: var(--gold-soft); font-weight: 600; font-size: 0.95rem;
+}
+.countdown[hidden] { display: none; }
+
+/* Tarjetas con detalle festivo */
+.product-card { position: relative; }
+.product-card::after {
+  content: 'Hecha a mano'; position: absolute; top: 22px; left: 22px;
+  background: rgba(15, 44, 34, 0.85); color: var(--gold-soft); font-size: 0.7rem; font-weight: 600;
+  padding: 3px 9px; border-radius: 999px; letter-spacing: 0.02em;
+}
+.custom-qty::after { content: none; }
+
+.footer-xmas {
+  margin: 28px 0 0; padding-top: 18px; border-top: 1px dashed var(--border);
+  text-align: center; font-family: Georgia, 'Times New Roman', serif; color: var(--primary-dark); font-size: 1.05rem;
+}
+.footer-xmas::before, .footer-xmas::after {
+  content: ''; display: inline-block; width: 10px; height: 10px; margin: 0 10px; border-radius: 50%;
+  background: var(--berry); box-shadow: 8px -4px 0 -1px #2f7d5c; vertical-align: middle;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lights span { animation: none; }
+}
+@media (max-width: 500px) {
+  .hero { padding-top: 40px; padding-bottom: 58px; }
+  .lights span { width: 7px; height: 12px; }
+  .lights span:nth-child(n+13) { display: none; }
+}
