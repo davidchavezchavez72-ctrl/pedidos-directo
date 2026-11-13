@@ -11,6 +11,12 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;');
 }
 
+function formatAddress(a) {
+  if (!a) return '';
+  return `${a.street}, Col. ${a.colonia}, ${a.city}, ${a.state}, C.P. ${a.zip}` +
+    (a.references ? `\nReferencias: ${a.references}` : '');
+}
+
 function formatItems(items) {
   return items
     .map((item) => `- ${item.quantity}x ${item.name}${item.color ? ` (color: ${item.color}${item.colorNote ? ` - ${item.colorNote}` : ''})` : ''}`)
@@ -79,6 +85,7 @@ async function sendOrderNotification(order) {
       `Nombre: ${order.name}\n` +
       `Telefono: ${order.phone}\n` +
       `Email: ${order.email}\n` +
+      `Direccion: ${formatAddress(order.address)}\n` +
       `Fecha: ${fecha}\n\n` +
       `Productos seleccionados:\n${formatItems(order.items)}\n\n` +
       `Puedes ver todos los pedidos en el panel de administrador.`,
@@ -87,6 +94,7 @@ async function sendOrderNotification(order) {
       `<p><b>Nombre:</b> ${escapeHtml(order.name)}<br>` +
       `<b>Telefono:</b> ${escapeHtml(order.phone)}<br>` +
       `<b>Email:</b> ${escapeHtml(order.email)}<br>` +
+      `<b>Direccion:</b> ${escapeHtml(formatAddress(order.address)).replace(/\n/g, '<br>')}<br>` +
       `<b>Fecha:</b> ${escapeHtml(fecha)}</p>` +
       `<h3 style="margin:16px 0 4px">Productos</h3>` +
       `<table cellpadding="0" cellspacing="0">${formatItemsHtml(order.items)}</table>` +
@@ -108,6 +116,7 @@ async function sendShippedNotification(order) {
     text:
       `Hola ${order.name},\n\n` +
       `Tu pedido ya fue enviado. Estos son los productos:\n${formatItems(order.items)}\n\n` +
+      (order.address ? `Se envio a: ${formatAddress(order.address)}\n\n` : '') +
       `Gracias por tu compra.`,
   });
 }

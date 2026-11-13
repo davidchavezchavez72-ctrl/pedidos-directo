@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 const { body, validationResult } = require('express-validator');
 
 const products = require('./products');
+const ESTADOS = require('./estados');
 const { insertOrder, getAllOrders, updateOrderStatus } = require('./db');
 const { requireAuth } = require('./middleware/auth');
 const { ensureCsrfToken, verifyCsrfToken, checkCsrfToken } = require('./middleware/csrf');
@@ -89,7 +90,7 @@ const loginLimiter = rateLimit({
 // ======================= RUTAS PUBLICAS =======================
 
 app.get('/', (req, res) => {
-  res.render('index', { products, errors: [], values: {}, success: req.query.success === '1' });
+  res.render('index', { products, estados: ESTADOS, errors: [], values: {}, success: req.query.success === '1' });
 });
 
 app.post(
@@ -100,6 +101,12 @@ app.post(
     body('name').trim().isLength({ min: 2, max: 100 }).withMessage('El nombre debe tener entre 2 y 100 caracteres.'),
     body('phone').trim().isLength({ min: 6, max: 30 }).withMessage('Indica un telefono valido.'),
     body('email').trim().isEmail().withMessage('Indica un correo electronico valido.').normalizeEmail(),
+    body('street').trim().isLength({ min: 3, max: 150 }).withMessage('Escribe tu calle y numero.'),
+    body('colonia').trim().isLength({ min: 2, max: 100 }).withMessage('Escribe tu colonia.'),
+    body('city').trim().isLength({ min: 2, max: 100 }).withMessage('Escribe tu ciudad o municipio.'),
+    body('state').trim().isIn(ESTADOS).withMessage('Selecciona tu estado.'),
+    body('zip').trim().matches(/^\d{5}$/).withMessage('El codigo postal debe tener 5 numeros.'),
+    body('references').optional({ values: 'falsy' }).trim().isLength({ max: 300 }).withMessage('Las referencias pueden tener maximo 300 caracteres.'),
   ],
   async (req, res) => {
     // Si el token de seguridad expiro, no guardamos nada: le regresamos el
@@ -107,6 +114,7 @@ app.post(
     if (!req.csrfValid) {
       return res.render('index', {
         products,
+        estados: ESTADOS,
         errors: [
           {
             msg: 'La pagina se actualizo mientras hacias tu pedido. Tus datos siguen aqui: revisalos y presiona "Enviar pedido" otra vez.',
@@ -164,6 +172,7 @@ app.post(
     if (!errors.isEmpty()) {
       return res.status(400).render('index', {
         products,
+        estados: ESTADOS,
         errors: errors.array(),
         values: req.body,
         success: false,
@@ -171,7 +180,15 @@ app.post(
     }
 
     const { name, phone, email } = req.body;
-    const order = await insertOrder({ name, phone, email, items });
+    const address = {
+      street: req.body.street,
+      colonia: req.body.colonia,
+      city: req.body.city,
+      state: req.body.state,
+      zip: req.body.zip,
+      references: req.body.references || '',
+    };
+    const order = await insertOrder({ name, phone, email, address, items });
 
     sendOrderNotification(order).catch((err) => {
       console.error('[mailer] Error enviando la notificacion del pedido:', err.message);
