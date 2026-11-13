@@ -38,7 +38,7 @@ function formatItems(items) {
 function formatItemsHtml(items) {
   return items
     .map((item) => {
-      const img = `${PUBLIC_URL}/images/${encodeURIComponent(item.image)}`;
+      const img = item.imageUrl ? `${PUBLIC_URL}${item.imageUrl}` : `${PUBLIC_URL}/images/${encodeURIComponent(item.image)}`;
       const color = item.color
         ? `<br><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${escapeHtml(item.colorHex || '#ccc')};vertical-align:middle"></span> Color: <b>${escapeHtml(item.color)}</b>${item.colorNote ? ` <i>(${escapeHtml(item.colorNote)})</i>` : ''}`
         : '';
@@ -50,7 +50,7 @@ function formatItemsHtml(items) {
     .join('');
 }
 
-async function sendEmail({ to, subject, text, html }) {
+async function sendEmail({ to, subject, text, html, attachments }) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     console.warn('[mailer] RESEND_API_KEY no configurado: no se envio el correo.');
@@ -69,6 +69,7 @@ async function sendEmail({ to, subject, text, html }) {
       subject,
       text,
       ...(html ? { html } : {}),
+      ...(attachments ? { attachments } : {}),
     }),
   });
 
@@ -134,4 +135,52 @@ async function sendShippedNotification(order) {
   });
 }
 
-module.exports = { sendOrderNotification, sendShippedNotification };
+// Avisa al dueno que un cliente subio el logo para una esfera personalizada.
+async function sendCustomRequestNotification(request, logo) {
+  const to = process.env.EMAIL_TO;
+  if (!to) return;
+  const ext = logo.type.split('/')[1] === 'jpeg' ? 'jpg' : logo.type.split('/')[1];
+  await sendEmail({
+    to,
+    subject: `Nueva esfera personalizada de ${request.name}${request.brand ? ` (${request.brand})` : ''}`,
+    text:
+      `Un cliente subio su logo para una esfera personalizada.\n\n` +
+      `Nombre: ${request.name}\nTelefono: ${request.phone}\nEmail: ${request.email}\n` +
+      (request.brand ? `Marca o empresa: ${request.brand}\n` : '') +
+      (request.notes ? `Indicaciones: ${request.notes}\n` : '') +
+      `\nEl logo va adjunto. Cuando tengas el diseno, subelo en ${PUBLIC_URL}/admin/personalizadas`,
+    html:
+      `<h2 style="margin:0 0 12px">Nueva esfera personalizada</h2>` +
+      `<p><b>Nombre:</b> ${escapeHtml(request.name)}<br><b>Telefono:</b> ${escapeHtml(request.phone)}<br>` +
+      `<b>Email:</b> ${escapeHtml(request.email)}` +
+      (request.brand ? `<br><b>Marca o empresa:</b> ${escapeHtml(request.brand)}` : '') +
+      (request.notes ? `<br><b>Indicaciones:</b> ${escapeHtml(request.notes)}` : '') +
+      `</p><p>El logo va adjunto en este correo.</p>` +
+      `<p><a href="${PUBLIC_URL}/admin/personalizadas">Subir el diseno de la esfera</a></p>`,
+    attachments: [{ filename: `logo-${String(request.brand || request.name).replace(/[^a-z0-9]+/gi, '-').slice(0, 40)}.${ext}`, content: logo.data }],
+  });
+}
+
+// Le avisa al cliente que su esfera ya esta lista para verla y pedirla.
+// NOTA: igual que el aviso de envio, con el dominio de Resend sin verificar
+// solo llega si el correo del cliente es el mismo de la cuenta de Resend.
+async function sendMockupReady(request, link, expiresText) {
+  if (!request.email) return;
+  await sendEmail({
+    to: request.email,
+    subject: 'Tu esfera personalizada esta lista',
+    text:
+      `Hola ${request.name},\n\n` +
+      `Ya tenemos el diseno de tu esfera${request.brand ? ` con el logo de ${request.brand}` : ''}.\n` +
+      `Velo y haz tu pedido aqui: ${link}\n\n` +
+      `Tienes 2 dias habiles para hacer tu pedido (hasta el ${expiresText}).\n\nGracias.`,
+    html:
+      `<h2 style="margin:0 0 12px">Tu esfera personalizada esta lista</h2>` +
+      `<p>Hola ${escapeHtml(request.name)}, ya tenemos el diseno de tu esfera` +
+      (request.brand ? ` con el logo de <b>${escapeHtml(request.brand)}</b>` : '') + `.</p>` +
+      `<p><a href="${link}" style="display:inline-block;background:#2f6fed;color:#fff;padding:12px 20px;border-radius:8px;text-decoration:none;font-weight:600">Ver mi esfera y hacer mi pedido</a></p>` +
+      `<p>Tienes <b>2 dias habiles</b> para hacer tu pedido (hasta el ${escapeHtml(expiresText)}).</p>`,
+  });
+}
+
+module.exports = { sendOrderNotification, sendShippedNotification, sendCustomRequestNotification, sendMockupReady };
