@@ -260,3 +260,13 @@ select {
 }
 .field-row { display: grid; grid-template-columns: 1fr 140px; gap: 12px; }
 @media (max-width: 500px) { .field-row { grid-template-columns: 1fr; gap: 0; } }
+
+/* --- Precios por docena y total --- */
+.product-dozen { margin: 0 0 6px; font-size: 0.8rem; color: var(--success); line-height: 1.3; }
+.product-dozen span { color: var(--muted); font-size: 0.72rem; }
+.order-total { margin-top: 20px; padding: 14px 16px; border-radius: 10px; background: var(--success-bg); border: 1px solid #c8ecd4; }
+.order-total p { margin: 0 0 4px; font-size: 0.9rem; }
+.order-total-sum { font-size: 1.1rem !important; margin-top: 8px !important; }
+.order-total-tip { color: var(--success); font-size: 0.8rem !important; }
+.order-pricing { background: #fafbfc; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; }
+.order-pricing p { margin: 2px 0; font-size: 0.9rem; }
