@@ -91,7 +91,10 @@ const loginLimiter = rateLimit({
 // ======================= RUTAS PUBLICAS =======================
 
 app.get('/', (req, res) => {
-  res.render('index', { products, estados: ESTADOS, errors: [], values: {}, success: req.query.success === '1' });
+  const success = req.query.success === '1';
+  const lastOrder = success ? req.session.lastOrder || null : null;
+  if (req.session.lastOrder) delete req.session.lastOrder;
+  res.render('index', { products, estados: ESTADOS, errors: [], values: {}, success, lastOrder });
 });
 
 app.post(
@@ -116,6 +119,7 @@ app.post(
       return res.render('index', {
         products,
         estados: ESTADOS,
+        lastOrder: null,
         errors: [
           {
             msg: 'La pagina se actualizo mientras hacias tu pedido. Tus datos siguen aqui: revisalos y presiona "Enviar pedido" otra vez.',
@@ -174,6 +178,7 @@ app.post(
       return res.status(400).render('index', {
         products,
         estados: ESTADOS,
+        lastOrder: null,
         errors: errors.array(),
         values: req.body,
         success: false,
@@ -196,6 +201,7 @@ app.post(
       console.error('[mailer] Error enviando la notificacion del pedido:', err.message);
     });
 
+    req.session.lastOrder = { total, pricing };
     res.redirect('/?success=1');
   }
 );
