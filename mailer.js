@@ -13,7 +13,7 @@ function escapeHtml(value) {
 
 function formatItems(items) {
   return items
-    .map((item) => `- ${item.quantity}x ${item.name}${item.color ? ` (color: ${item.color})` : ''}`)
+    .map((item) => `- ${item.quantity}x ${item.name}${item.color ? ` (color: ${item.color}${item.colorNote ? ` - ${item.colorNote}` : ''})` : ''}`)
     .join('\n');
 }
 
@@ -23,7 +23,7 @@ function formatItemsHtml(items) {
     .map((item) => {
       const img = `${PUBLIC_URL}/images/${encodeURIComponent(item.image)}`;
       const color = item.color
-        ? `<br><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${escapeHtml(item.colorHex || '#ccc')};vertical-align:middle"></span> Color: <b>${escapeHtml(item.color)}</b>`
+        ? `<br><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${escapeHtml(item.colorHex || '#ccc')};vertical-align:middle"></span> Color: <b>${escapeHtml(item.color)}</b>${item.colorNote ? ` <i>(${escapeHtml(item.colorNote)})</i>` : ''}`
         : '';
       return (
         `<tr><td style="padding:6px 12px 6px 0"><img src="${img}" width="110" height="110" alt="${escapeHtml(item.name)}" style="border-radius:8px;object-fit:cover"></td>` +

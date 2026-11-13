@@ -121,6 +121,7 @@ app.post(
               name: product.name,
               color: color.name,
               colorHex: color.hex,
+              colorNote: color.note || null,
               image: color.image,
               price: product.price || null,
               quantity,

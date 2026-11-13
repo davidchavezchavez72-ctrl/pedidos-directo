@@ -17,13 +17,14 @@ module.exports = [
     description: 'Esfera decorativa con diseño de relieve en espiral. Impresa en 3D, elige tu color.',
     price: 70,
     // Opcional: si un producto tiene "colors", el cliente elige cuantas
-    // quiere de cada color. Cada color usa su propia imagen.
+    // quiere de cada color. Cada color usa su propia imagen. "note" es opcional
+    // y aparece debajo del nombre del color (por ejemplo, si brilla en la oscuridad).
     colors: [
       { id: 'amarillo', name: 'Amarillo', hex: '#f2d43a', image: 'esfera-espiral-amarilla.webp' },
       { id: 'rojo', name: 'Rojo', hex: '#d62828', image: 'esfera-espiral-rojo.webp' },
-      { id: 'rosa', name: 'Rosa', hex: '#f08cc4', image: 'esfera-espiral-rosa.webp' },
+      { id: 'rosa', name: 'Rosa', hex: '#e7a8e3', image: 'esfera-espiral-rosa.webp', note: 'Muy brillante (PLA especial)' },
       { id: 'verde', name: 'Verde', hex: '#2bb24c', image: 'esfera-espiral-verde.webp' },
-      { id: 'azul', name: 'Azul', hex: '#2563c9', image: 'esfera-espiral-azul.webp' },
+      { id: 'azul', name: 'Azul', hex: '#2bb0e0', image: 'esfera-espiral-azul.webp', note: 'Brilla en la oscuridad' },
     ],
   },
 ];
