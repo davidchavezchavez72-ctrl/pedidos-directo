@@ -286,3 +286,36 @@ body.has-total-bar { padding-bottom: 64px; }
 .success-total { margin-top: 10px; padding-top: 10px; border-top: 1px solid #b7e4c7; }
 .success-total p { margin: 2px 0; }
 .success-total-sum { font-size: 1.1rem; margin-top: 6px !important; }
+
+/* --- Esferas personalizadas --- */
+.custom-banner {
+  display: block; margin: 8px 0 20px; padding: 16px 18px; border-radius: 12px;
+  background: linear-gradient(135deg, #2f6fed, #1f4fc4); color: #fff; text-decoration: none;
+}
+.custom-banner-title { display: block; font-weight: 700; font-size: 1.1rem; }
+.custom-banner-text { display: block; font-size: 0.9rem; opacity: 0.9; margin: 4px 0 10px; }
+.custom-banner-btn { display: inline-block; background: #fff; color: #1f4fc4; font-weight: 600; font-size: 0.9rem; padding: 8px 14px; border-radius: 8px; }
+.custom-steps { background: #fafbfc; border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin: 12px 0; }
+.custom-steps p { margin: 4px 0; font-size: 0.92rem; }
+.custom-price { font-size: 1rem; color: var(--success); }
+.custom-deadline { color: var(--muted); }
+.file-input { display: block; width: 100%; padding: 10px; border: 1px dashed var(--border); border-radius: 8px; background: #fafbfc; }
+.upload-preview { display: block; max-width: 220px; max-height: 220px; margin-top: 10px; border-radius: 8px; border: 1px solid var(--border); background: #fff; }
+.upload-preview[hidden] { display: none; }
+.hint-error { color: var(--error) !important; }
+.mockup-image { display: block; width: 100%; max-width: 420px; margin: 8px auto 16px; border-radius: 12px; border: 1px solid var(--border); }
+.custom-qty { text-align: left; }
+.custom-qty input[type="number"] { font-size: 1.1rem; }
+.btn-link { display: inline-block; padding: 10px 14px; border-radius: 8px; background: #eef0f3; color: var(--text); text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+.btn-link:hover { background: #dfe3e8; }
+.orders-header { align-items: center; }
+.custom-images { display: flex; gap: 14px; flex-wrap: wrap; margin: 10px 0; }
+.custom-images figure { margin: 0; text-align: center; }
+.custom-images img { width: 140px; height: 140px; object-fit: contain; background: #fafbfc; border: 1px solid var(--border); border-radius: 8px; }
+.custom-images figcaption { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+.copy-link { width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.85rem; background: #fafbfc; }
+.btn-whatsapp { display: inline-block; margin-top: 8px; padding: 9px 14px; border-radius: 8px; background: #1e8449; color: #fff; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+.mockup-form { margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.mockup-form button { width: auto; padding: 10px 16px; margin-top: 10px; }
+.status-diseno { background: #e8f0fe; color: #1f4fc4; }
+.status-vencido { background: var(--error-bg); color: var(--error); }
