@@ -10,6 +10,7 @@ const { body, validationResult } = require('express-validator');
 
 const products = require('./products');
 const ESTADOS = require('./estados');
+const { computeTotals } = require('./pricing');
 const { insertOrder, getAllOrders, updateOrderStatus } = require('./db');
 const { requireAuth } = require('./middleware/auth');
 const { ensureCsrfToken, verifyCsrfToken, checkCsrfToken } = require('./middleware/csrf');
@@ -188,7 +189,8 @@ app.post(
       zip: req.body.zip,
       references: req.body.references || '',
     };
-    const order = await insertOrder({ name, phone, email, address, items });
+    const { lines: pricing, total } = computeTotals(items, products);
+    const order = await insertOrder({ name, phone, email, address, items, pricing, total });
 
     sendOrderNotification(order).catch((err) => {
       console.error('[mailer] Error enviando la notificacion del pedido:', err.message);

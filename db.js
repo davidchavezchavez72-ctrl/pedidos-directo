@@ -19,13 +19,15 @@ if (projectId && clientEmail && privateKey) {
   const db = getFirestore();
   const ordersCollection = db.collection('orders');
 
-  insertOrder = async ({ name, phone, email, address, items }) => {
+  insertOrder = async ({ name, phone, email, address, items, pricing, total }) => {
     const docRef = await ordersCollection.add({
       name,
       phone,
       email,
       address,
       items,
+      pricing: pricing || [],
+      total: total || 0,
       status: 'pendiente',
       created_at: FieldValue.serverTimestamp(),
     });
@@ -69,7 +71,7 @@ if (projectId && clientEmail && privateKey) {
   const memoryOrders = [];
   let nextId = 1;
 
-  insertOrder = async ({ name, phone, email, address, items }) => {
+  insertOrder = async ({ name, phone, email, address, items, pricing, total }) => {
     const order = {
       id: String(nextId++),
       name,
@@ -77,6 +79,8 @@ if (projectId && clientEmail && privateKey) {
       email,
       address,
       items,
+      pricing: pricing || [],
+      total: total || 0,
       status: 'pendiente',
       created_at: new Date(),
     };

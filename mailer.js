@@ -17,6 +17,17 @@ function formatAddress(a) {
     (a.references ? `\nReferencias: ${a.references}` : '');
 }
 
+function formatPricing(order) {
+  if (!order.total) return '';
+  const lines = (order.pricing || []).map((l) => {
+    const parts = [];
+    if (l.dozens) parts.push(`${l.dozens} docena${l.dozens > 1 ? 's' : ''} ($${l.dozenPrice})`);
+    if (l.rest) parts.push(`${l.rest} pieza${l.rest > 1 ? 's' : ''} ($${l.price} c/u)`);
+    return `${l.qty}x ${l.name}: ${parts.join(' + ')} = $${l.subtotal}`;
+  });
+  return lines.join('\n') + `\nTOTAL: $${order.total}`;
+}
+
 function formatItems(items) {
   return items
     .map((item) => `- ${item.quantity}x ${item.name}${item.color ? ` (color: ${item.color}${item.colorNote ? ` - ${item.colorNote}` : ''})` : ''}`)
@@ -88,6 +99,7 @@ async function sendOrderNotification(order) {
       `Direccion: ${formatAddress(order.address)}\n` +
       `Fecha: ${fecha}\n\n` +
       `Productos seleccionados:\n${formatItems(order.items)}\n\n` +
+      (order.total ? `${formatPricing(order)}\n\n` : '') +
       `Puedes ver todos los pedidos en el panel de administrador.`,
     html:
       `<h2 style="margin:0 0 12px">Nuevo pedido recibido</h2>` +
@@ -98,6 +110,7 @@ async function sendOrderNotification(order) {
       `<b>Fecha:</b> ${escapeHtml(fecha)}</p>` +
       `<h3 style="margin:16px 0 4px">Productos</h3>` +
       `<table cellpadding="0" cellspacing="0">${formatItemsHtml(order.items)}</table>` +
+      (order.total ? `<p style="font-size:15px">${escapeHtml(formatPricing(order)).replace(/\n/g, '<br>').replace(/TOTAL: (.*)$/, '<b style="font-size:18px">TOTAL: $1</b>')}</p>` : '') +
       `<p><a href="${PUBLIC_URL}/admin/pedidos">Ver todos los pedidos en el panel</a></p>`,
   });
 }
