@@ -42,7 +42,7 @@
                   <span>
                     <strong><%= item.quantity %>x</strong> <%= item.name %>
                     <% if (item.color) { %>
-                      <br /><span class="color-dot" data-color="<%= item.colorHex || '#cccccc' %>"></span> Color: <strong><%= item.color %></strong>
+                      <br /><span class="color-dot" data-color="<%= item.colorHex || '#cccccc' %>"></span> Color: <strong><%= item.color %></strong><% if (item.colorNote) { %> <span class="color-note-inline">(<%= item.colorNote %>)</span><% } %>
                     <% } %>
                   </span>
                 </div>
