@@ -3,6 +3,6 @@
 module.exports = {
   id: 'personalizada',
   name: 'Esfera personalizada',
-  price: 80,
-  dozenPrice: 900,
+  price: 100,
+  dozenPrice: 1000,
 };
