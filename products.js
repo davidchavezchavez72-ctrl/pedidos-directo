@@ -10,8 +10,8 @@ module.exports = [
     image: 'esfera-arbol-navidad.webp',
     name: 'Esfera navideña - Árbol y regalos',
     description: 'Esfera decorativa con diseño de malla entrelazada, con un árbol de Navidad y regalos en su interior. Impresa en 3D en filamento blanco, incluye argolla para colgar.',
-    price: 80,
-    dozenPrice: 900, // precio por 12 piezas
+    price: 150,
+    dozenPrice: 1500, // precio por 12 piezas
   },
   {
     id: 'esfera-espiral-amarilla',
